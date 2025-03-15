@@ -26,14 +26,12 @@ export const VideoPreview = ({ videoUrl, highlightedSentences, currentTime, onTi
   const [highlightClips, setHighlightClips] = useState<{ start: number; end: number }[]>([])
   const [currentClipIndex, setCurrentClipIndex] = useState(0)
 
-  // Process highlighted sentences into clips
   useEffect(() => {
     if (highlightedSentences.length === 0) {
       setHighlightClips([])
       return
     }
 
-    // Merge adjacent or overlapping sentences into continuous clips
     const clips: { start: number; end: number }[] = []
     let currentClip: { start: number; end: number } | null = null
 
@@ -41,10 +39,8 @@ export const VideoPreview = ({ videoUrl, highlightedSentences, currentTime, onTi
       if (!currentClip) {
         currentClip = { start: sentence.startTime, end: sentence.endTime }
       } else if (sentence.startTime <= currentClip.end + 0.5) {
-        // If this sentence starts before or just after the current clip ends, extend the clip
         currentClip.end = Math.max(currentClip.end, sentence.endTime)
       } else {
-        // Otherwise, finish the current clip and start a new one
         clips.push(currentClip)
         currentClip = { start: sentence.startTime, end: sentence.endTime }
       }
@@ -57,35 +53,29 @@ export const VideoPreview = ({ videoUrl, highlightedSentences, currentTime, onTi
     setHighlightClips(clips)
   }, [highlightedSentences])
 
-  // Handle video metadata loaded
   const handleMetadataLoaded = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration)
     }
   }
 
-  // Handle time update from video player
   const handleTimeUpdate = () => {
     if (videoRef.current) {
       const time = videoRef.current.currentTime
       onTimeUpdate(time)
 
-      // Find the current sentence being played
       const sentence = highlightedSentences.find((s) => time >= s.startTime && time <= s.endTime)
       setCurrentSentence(sentence?.text || null)
 
-      // Handle clip transitions
       if (highlightClips.length > 0) {
         const currentClip = highlightClips[currentClipIndex]
         if (time > currentClip.end) {
-          // Move to the next clip if available
           if (currentClipIndex < highlightClips.length - 1) {
             setCurrentClipIndex(currentClipIndex + 1)
             if (videoRef.current) {
               videoRef.current.currentTime = highlightClips[currentClipIndex + 1].start
             }
           } else {
-            // End of all clips, pause the video
             setIsPlaying(false)
             if (videoRef.current) {
               videoRef.current.pause()
@@ -96,20 +86,17 @@ export const VideoPreview = ({ videoUrl, highlightedSentences, currentTime, onTi
     }
   }
 
-  // Sync video player with external currentTime
   useEffect(() => {
     if (videoRef.current && Math.abs(videoRef.current.currentTime - currentTime) > 0.5) {
       videoRef.current.currentTime = currentTime
     }
   }, [currentTime])
 
-  // Toggle play/pause
   const togglePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause()
       } else {
-        // If we have highlight clips and not currently playing, start from the first clip
         if (highlightClips.length > 0 && !isPlaying) {
           videoRef.current.currentTime = highlightClips[0].start
           setCurrentClipIndex(0)
@@ -120,7 +107,6 @@ export const VideoPreview = ({ videoUrl, highlightedSentences, currentTime, onTi
     }
   }
 
-  // Skip to next highlight
   const skipNext = () => {
     if (highlightClips.length > 0 && currentClipIndex < highlightClips.length - 1) {
       setCurrentClipIndex(currentClipIndex + 1)
@@ -134,7 +120,6 @@ export const VideoPreview = ({ videoUrl, highlightedSentences, currentTime, onTi
     }
   }
 
-  // Skip to previous highlight
   const skipPrevious = () => {
     if (highlightClips.length > 0 && currentClipIndex > 0) {
       setCurrentClipIndex(currentClipIndex - 1)
@@ -148,14 +133,12 @@ export const VideoPreview = ({ videoUrl, highlightedSentences, currentTime, onTi
     }
   }
 
-  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
   }
 
-  // Handle slider change
   const handleSliderChange = (value: number[]) => {
     if (videoRef.current) {
       videoRef.current.currentTime = value[0]
@@ -179,16 +162,14 @@ export const VideoPreview = ({ videoUrl, highlightedSentences, currentTime, onTi
             onPause={() => setIsPlaying(false)}
           />
 
-          {/* Text overlay */}
           {currentSentence && (
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-black/70 text-white text-center">
-              <p className="text-lg font-medium">{currentSentence}</p>
+              <p className="md:text-lg font-medium">{currentSentence}</p>
             </div>
           )}
         </div>
 
         <CardContent className="p-4">
-          {/* Timeline visualization */}
           <div className="mb-4 relative h-8">
             <div className="absolute inset-0 bg-muted rounded-md"></div>
             {highlightClips.map((clip, index) => (
@@ -209,7 +190,6 @@ export const VideoPreview = ({ videoUrl, highlightedSentences, currentTime, onTi
             ))}
           </div>
 
-          {/* Video controls */}
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground w-12">{formatTime(currentTime)}</span>

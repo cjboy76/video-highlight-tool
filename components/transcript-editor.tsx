@@ -72,22 +72,8 @@ export const TranscriptEditor = ({ transcript, currentTime, onToggleHighlight, o
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
+      <div className="mb-4">
         <h2 className="text-xl font-semibold">Transcript</h2>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            <Badge variant="outline" className="bg-primary/10">
-              <Star className="h-3 w-3 mr-1 text-primary" />
-              Suggested
-            </Badge>
-          </div>
-          <div className="flex items-center gap-1">
-            <Badge variant="outline" className="bg-background">
-              <Clock className="h-3 w-3 mr-1" />
-              Timestamp
-            </Badge>
-          </div>
-        </div>
       </div>
 
       <div ref={containerRef} className="flex-1 overflow-y-auto pr-2 space-y-6">

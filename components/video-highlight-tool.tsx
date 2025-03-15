@@ -5,10 +5,8 @@ import { VideoUploader } from "./video-uploader"
 import { TranscriptEditor } from "./transcript-editor"
 import { VideoPreview } from "./video-preview"
 import { mockProcessVideo } from "@/lib/mock-api"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
-import { useMobile } from "@/hooks/use-mobile"
 
 export type VideoData = {
   videoUrl: string
@@ -32,9 +30,7 @@ export const VideoHighlightTool = () => {
   const [videoData, setVideoData] = useState<VideoData | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
-  const [activeTab, setActiveTab] = useState("split")
   const { toast } = useToast()
-  const isMobile = useMobile()
 
   const handleVideoUpload = async (file: File) => {
     try {
@@ -139,77 +135,25 @@ export const VideoHighlightTool = () => {
     return <VideoUploader onUpload={handleVideoUpload} />
   }
 
-  // For mobile, we'll use tabs to switch between editor and preview
-  if (isMobile) {
-    return (
-      <Tabs defaultValue="editor" className="w-full">
-        <TabsList className="grid grid-cols-2 mb-4">
-          <TabsTrigger value="editor">Transcript</TabsTrigger>
-          <TabsTrigger value="preview">Preview</TabsTrigger>
-        </TabsList>
-        <TabsContent value="editor" className="h-[calc(100vh-200px)]">
-          <TranscriptEditor
-            transcript={videoData.transcript}
-            currentTime={currentTime}
-            onToggleHighlight={toggleHighlight}
-            onSeek={(time) => setCurrentTime(time)}
-          />
-        </TabsContent>
-        <TabsContent value="preview" className="h-[calc(100vh-200px)]">
-          <VideoPreview
-            videoUrl={videoData.videoUrl}
-            highlightedSentences={getHighlightedSentences()}
-            currentTime={currentTime}
-            onTimeUpdate={handleTimeUpdate}
-          />
-        </TabsContent>
-      </Tabs>
-    )
-  }
-
-  // For desktop, we'll use a split-screen layout
   return (
-    <Tabs defaultValue="split" className="w-full" onValueChange={setActiveTab}>
-      <TabsList className="grid grid-cols-3 mb-4">
-        <TabsTrigger value="split">Split View</TabsTrigger>
-        {/* <TabsTrigger value="editor">Editor Only</TabsTrigger>
-        <TabsTrigger value="preview">Preview Only</TabsTrigger> */}
-      </TabsList>
-      <TabsContent value="split" className="flex gap-4 h-[calc(100vh-200px)]">
-        <div className="w-1/2 h-full overflow-hidden">
-          <TranscriptEditor
-            transcript={videoData.transcript}
-            currentTime={currentTime}
-            onToggleHighlight={toggleHighlight}
-            onSeek={(time) => setCurrentTime(time)}
-          />
-        </div>
-        <div className="w-1/2 h-full">
-          <VideoPreview
-            videoUrl={videoData.videoUrl}
-            highlightedSentences={getHighlightedSentences()}
-            currentTime={currentTime}
-            onTimeUpdate={handleTimeUpdate}
-          />
-        </div>
-      </TabsContent>
-      {/* <TabsContent value="editor" className="h-[calc(100vh-200px)]">
+    <div className="flex flex-col-reverse md:flex-row gap-2 md:h-[calc(100vh-200px)]">
+      <div className="md:w-1/2 h-full overflow-scroll">
         <TranscriptEditor
           transcript={videoData.transcript}
           currentTime={currentTime}
           onToggleHighlight={toggleHighlight}
           onSeek={(time) => setCurrentTime(time)}
         />
-      </TabsContent>
-      <TabsContent value="preview" className="h-[calc(100vh-200px)]">
+      </div>
+      <div className="md:w-1/2 h-full">
         <VideoPreview
           videoUrl={videoData.videoUrl}
           highlightedSentences={getHighlightedSentences()}
           currentTime={currentTime}
           onTimeUpdate={handleTimeUpdate}
         />
-      </TabsContent> */}
-    </Tabs>
+      </div>
+    </div>
   )
 }
 
